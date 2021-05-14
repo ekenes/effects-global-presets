@@ -74,13 +74,8 @@ define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets
                         view: view,
                         listItemCreatedFunction: function (event) {
                             var item = event.item;
-                            if (item.layer.type !== "feature") {
-                                return;
-                            }
-                            var featureLayers = view.map.allLayers
-                                .filter(function (layer) { return layer.type === "feature"; });
-                            var finalFeatureLayer = featureLayers.getItemAt(featureLayers.length - 1);
-                            var showOptions = finalFeatureLayer.id === item.layer.id;
+                            var finalLayer = view.map.layers.getItemAt(view.map.layers.length - 1);
+                            var showOptions = finalLayer.id === item.layer.id;
                             item.actionsOpen = showOptions;
                             item.actionsSections = [
                                 Object.keys(effects).map(function (key) { return new ActionToggle({ id: key, title: key, value: false }); })

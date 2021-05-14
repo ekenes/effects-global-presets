@@ -47,13 +47,8 @@ import { getUrlParams } from "./urlParams";
     listItemCreatedFunction: (event) => {
       const item = event.item as esri.ListItem;
 
-      if(item.layer.type !== "feature"){
-        return;
-      }
-      const featureLayers = view.map.allLayers
-        .filter( layer => layer.type === "feature");
-      const finalFeatureLayer = featureLayers.getItemAt(featureLayers.length-1);
-      const showOptions = finalFeatureLayer.id === item.layer.id;
+      const finalLayer = view.map.layers.getItemAt(view.map.layers.length-1);
+      const showOptions = finalLayer.id === item.layer.id;
 
       item.actionsOpen = showOptions;
 
