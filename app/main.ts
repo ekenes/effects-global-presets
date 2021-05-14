@@ -5,6 +5,7 @@ import MapView = require("esri/views/MapView");
 import Legend = require("esri/widgets/Legend");
 import Expand = require("esri/widgets/Expand");
 import LayerList = require("esri/widgets/LayerList");
+import BasemapLayerList = require("esri/widgets/BasemapLayerList");
 import ActionToggle = require("esri/support/actions/ActionToggle");
 
 import { getUrlParams } from "./urlParams";
@@ -60,7 +61,7 @@ import { getUrlParams } from "./urlParams";
   });
   view.ui.add(layerList, "top-right");
 
-  layerList.on("trigger-action", (event) => {
+  function triggerAction (event: esri.LayerListTriggerActionEvent) {
     const { action, item } = event;
     const { id, value } = action as esri.ActionToggle;
 
@@ -72,6 +73,23 @@ import { getUrlParams } from "./urlParams";
     });
 
     layer.effect = value && effects[id] ? effects[id] : null;
+  }
+
+  layerList.on("trigger-action", triggerAction);
+
+  function basemapListItemCreatedFunction (event: any) {
+    const item = event.item as esri.ListItem;
+    item.actionsSections = [
+      Object.keys(effects).map( (key: string) => new ActionToggle({ id: key, title: key, value: false }))
+    ] as any;
+  }
+
+  const basemapLayerList = new BasemapLayerList({
+    view,
+    baseListItemCreatedFunction: basemapListItemCreatedFunction,
+    referenceListItemCreatedFunction: basemapListItemCreatedFunction
   });
+  view.ui.add(basemapLayerList, "top-right");
+  basemapLayerList.on("trigger-action", triggerAction);
 
 })();

@@ -34,11 +34,27 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets/Legend", "esri/widgets/Expand", "esri/widgets/LayerList", "esri/support/actions/ActionToggle", "./urlParams"], function (require, exports, WebMap, MapView, Legend, Expand, LayerList, ActionToggle, urlParams_1) {
+define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets/Legend", "esri/widgets/Expand", "esri/widgets/LayerList", "esri/widgets/BasemapLayerList", "esri/support/actions/ActionToggle", "./urlParams"], function (require, exports, WebMap, MapView, Legend, Expand, LayerList, BasemapLayerList, ActionToggle, urlParams_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     (function () { return __awaiter(void 0, void 0, void 0, function () {
-        var webmap, map, view, effects, layerList;
+        function triggerAction(event) {
+            var action = event.action, item = event.item;
+            var _a = action, id = _a.id, value = _a.value;
+            var layer = item.layer;
+            var actions = item.actionsSections.getItemAt(0);
+            actions.forEach(function (action) {
+                action.value = action.value && action.id === id;
+            });
+            layer.effect = value && effects[id] ? effects[id] : null;
+        }
+        function basemapListItemCreatedFunction(event) {
+            var item = event.item;
+            item.actionsSections = [
+                Object.keys(effects).map(function (key) { return new ActionToggle({ id: key, title: key, value: false }); })
+            ];
+        }
+        var webmap, map, view, effects, layerList, basemapLayerList;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -84,16 +100,14 @@ define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets
                         }
                     });
                     view.ui.add(layerList, "top-right");
-                    layerList.on("trigger-action", function (event) {
-                        var action = event.action, item = event.item;
-                        var _a = action, id = _a.id, value = _a.value;
-                        var layer = item.layer;
-                        var actions = item.actionsSections.getItemAt(0);
-                        actions.forEach(function (action) {
-                            action.value = action.value && action.id === id;
-                        });
-                        layer.effect = value && effects[id] ? effects[id] : null;
+                    layerList.on("trigger-action", triggerAction);
+                    basemapLayerList = new BasemapLayerList({
+                        view: view,
+                        baseListItemCreatedFunction: basemapListItemCreatedFunction,
+                        referenceListItemCreatedFunction: basemapListItemCreatedFunction
                     });
+                    view.ui.add(basemapLayerList, "top-right");
+                    basemapLayerList.on("trigger-action", triggerAction);
                     return [2 /*return*/];
             }
         });
