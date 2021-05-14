@@ -9,7 +9,6 @@ import ActionToggle = require("esri/support/actions/ActionToggle");
 import FeatureEffect = require("esri/views/layers/support/FeatureEffect");
 
 import { getUrlParams } from "./urlParams";
-import { createFilterPanelContent } from "./layerListUtils";
 
 
 ( async () => {
@@ -37,26 +36,11 @@ import { createFilterPanelContent } from "./layerListUtils";
   }), "bottom-left");
 
   const effects = {
-    "drop shadow": {
-      includedEffect: `drop-shadow(2px, 2px, 2px, rgb(50,50,50))`,
-      excludedEffect: ` blur(2px) opacity(50%)`
-    },
-    "grayscale": {
-      includedEffect: ``,
-      excludedEffect: `grayscale(100%) opacity(50%)`
-    },
-    "blur": {
-      includedEffect: ``,
-      excludedEffect: `blur(10px) opacity(60%)`
-    },
-    "opacity": {
-      includedEffect: ``,
-      excludedEffect: `opacity(40%)`
-    },
-    "bloom": {
-      includedEffect: "bloom(150%, 1px, 0.2)",
-      excludedEffect: "blur(1px) brightness(65%)"
-    }
+    "drop shadow": `drop-shadow(2px, 2px, 2px, rgb(50,50,50))`,
+    "grayscale": `grayscale(100%) opacity(50%)`,
+    "blur": `blur(6px)`,
+    "opacity": `opacity(40%)`,
+    "bloom": `bloom(150%, 1px, 0.2)`
   }
 
   const layerList = new LayerList({
@@ -64,8 +48,7 @@ import { createFilterPanelContent } from "./layerListUtils";
     listItemCreatedFunction: (event) => {
       const item = event.item as esri.ListItem;
 
-      item.visible = item.layer.type === "feature";
-      if(!item.visible){
+      if(item.layer.type !== "feature"){
         return;
       }
       const featureLayers = view.map.allLayers
@@ -78,38 +61,22 @@ import { createFilterPanelContent } from "./layerListUtils";
       item.actionsSections = [
         Object.keys(effects).map( (key: string) => new ActionToggle({ id: key, title: key, value: false }))
       ] as any;
-
-      item.panel = {
-        className: "esri-icon-filter",
-        open: showOptions,
-        title: "Filter data",
-        listItem: item
-      } as esri.ListItemPanel;
-
-      createFilterPanelContent({
-        panel: item.panel
-      })
     }
   });
   view.ui.add(layerList, "top-right");
 
   layerList.on("trigger-action", (event) => {
-    const { action: { id }, item } = event;
+    const { action, item } = event;
+    const { id, value } = action as esri.ActionToggle;
 
-    const layerView = item.layerView as esri.FeatureLayerView;
-
+    const layer = item.layer as esri.FeatureLayer;
     const actions = item.actionsSections.getItemAt(0);
 
     actions.forEach(action => {
-      (action as ActionToggle).value = action.id === id;
+      (action as ActionToggle).value = (action as ActionToggle).value && action.id === id;
     });
 
-    const filter = layerView.effect && layerView.effect.filter ? layerView.effect.filter.clone() : null;
-
-    layerView.effect = new FeatureEffect({
-      filter,
-      ...effects[id]
-    });
+    layer.effect = value && effects[id] ? effects[id] : null;
   });
 
 })();
