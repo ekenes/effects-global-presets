@@ -6,7 +6,6 @@ import Legend = require("esri/widgets/Legend");
 import Expand = require("esri/widgets/Expand");
 import LayerList = require("esri/widgets/LayerList");
 import ActionToggle = require("esri/support/actions/ActionToggle");
-import FeatureEffect = require("esri/views/layers/support/FeatureEffect");
 
 import { getUrlParams } from "./urlParams";
 
