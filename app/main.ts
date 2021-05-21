@@ -7,9 +7,9 @@ import Expand = require("esri/widgets/Expand");
 import LayerList = require("esri/widgets/LayerList");
 import BasemapLayerList = require("esri/widgets/BasemapLayerList");
 import ActionToggle = require("esri/support/actions/ActionToggle");
+import BasemapGallery = require("esri/widgets/BasemapGallery");
 
 import { getUrlParams } from "./urlParams";
-
 
 ( async () => {
 
@@ -36,13 +36,41 @@ import { getUrlParams } from "./urlParams";
     expanded: false
   }), "bottom-left");
 
+  view.ui.add(new Expand({
+    content: new BasemapGallery({ view }),
+    view,
+    expanded: false
+  }), "bottom-left");
+
+  const allEffects = {
+    "Mid-Century": `grayscale(50%)`,
+    "Grayscale": `grayscale(100%)`,
+    "Invert Colors": `invert(100%)`,
+    "Darken": `brightness(80%) grayscale(15%)`,
+    "Saturate": `contrast(155%)`
+  };
+
+  const polygonEffects = {
+    "Focus (polygons)": `drop-shadow(0px, 0px, 9px, #000000)`
+  };
+
+  const pointEffects = {
+    "Cluster focus": `bloom(1, 1px, 0.3)`
+  };
+
+  const lineEffects = {
+    "Focus (lines)": `drop-shadow(1px, 1px, 3px, #000000)`,
+    "Firefly": `bloom(1, 0px, 0)`
+  };
+
   const effects = {
-    "drop shadow": `drop-shadow(2px, 2px, 2px, rgb(50,50,50))`,
-    "grayscale": `grayscale(100%) opacity(50%)`,
-    "blur": `blur(6px)`,
-    "opacity": `opacity(40%)`,
-    "bloom": `bloom(150%, 1px, 0.2)`
-  }
+    ...allEffects,
+    ...polygonEffects,
+    ...pointEffects,
+    ...lineEffects
+  };
+
+  const createActions = (effects:any) => Object.keys(effects).map( (key: string) => new ActionToggle({ id: key, title: key, value: false }));
 
   const layerList = new LayerList({
     view,
@@ -54,8 +82,33 @@ import { getUrlParams } from "./urlParams";
 
       item.actionsOpen = showOptions;
 
+      const layer = item.layer as esri.FeatureLayer;
+
+      let effects = {};
+
+      if(layer.geometryType === "point" || layer.geometryType === "multipoint"){
+        effects = {
+          ...allEffects,
+          ...pointEffects
+        };
+      }
+
+      if(layer.geometryType === "polyline"){
+        effects = {
+          ...allEffects,
+          ...lineEffects
+        };
+      }
+
+      if(layer.geometryType === "polygon" || layer.geometryType === "multipatch"){
+        effects = {
+          ...allEffects,
+          ...polygonEffects
+        };
+      }
+
       item.actionsSections = [
-        Object.keys(effects).map( (key: string) => new ActionToggle({ id: key, title: key, value: false }))
+        createActions(effects)
       ] as any;
     }
   });
@@ -66,7 +119,7 @@ import { getUrlParams } from "./urlParams";
     const { id, value } = action as esri.ActionToggle;
 
     const layer = item.layer as esri.FeatureLayer;
-    const actions = item.actionsSections.getItemAt(0);
+    const actions = item.actionsSections.reduce((p, c) => p.concat(c));
 
     actions.forEach(action => {
       (action as ActionToggle).value = (action as ActionToggle).value && action.id === id;
@@ -80,7 +133,7 @@ import { getUrlParams } from "./urlParams";
   function basemapListItemCreatedFunction (event: any) {
     const item = event.item as esri.ListItem;
     item.actionsSections = [
-      Object.keys(effects).map( (key: string) => new ActionToggle({ id: key, title: key, value: false }))
+      createActions(allEffects)
     ] as any;
   }
 

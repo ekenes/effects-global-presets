@@ -1,3 +1,14 @@
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,7 +45,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets/Legend", "esri/widgets/Expand", "esri/widgets/LayerList", "esri/widgets/BasemapLayerList", "esri/support/actions/ActionToggle", "./urlParams"], function (require, exports, WebMap, MapView, Legend, Expand, LayerList, BasemapLayerList, ActionToggle, urlParams_1) {
+define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets/Legend", "esri/widgets/Expand", "esri/widgets/LayerList", "esri/widgets/BasemapLayerList", "esri/support/actions/ActionToggle", "esri/widgets/BasemapGallery", "./urlParams"], function (require, exports, WebMap, MapView, Legend, Expand, LayerList, BasemapLayerList, ActionToggle, BasemapGallery, urlParams_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     (function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -42,7 +53,7 @@ define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets
             var action = event.action, item = event.item;
             var _a = action, id = _a.id, value = _a.value;
             var layer = item.layer;
-            var actions = item.actionsSections.getItemAt(0);
+            var actions = item.actionsSections.reduce(function (p, c) { return p.concat(c); });
             actions.forEach(function (action) {
                 action.value = action.value && action.id === id;
             });
@@ -51,10 +62,10 @@ define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets
         function basemapListItemCreatedFunction(event) {
             var item = event.item;
             item.actionsSections = [
-                Object.keys(effects).map(function (key) { return new ActionToggle({ id: key, title: key, value: false }); })
+                createActions(allEffects)
             ];
         }
-        var webmap, map, view, effects, layerList, basemapLayerList;
+        var webmap, map, view, allEffects, polygonEffects, pointEffects, lineEffects, effects, createActions, layerList, basemapLayerList;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -80,13 +91,30 @@ define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets
                         view: view,
                         expanded: false
                     }), "bottom-left");
-                    effects = {
-                        "drop shadow": "drop-shadow(2px, 2px, 2px, rgb(50,50,50))",
-                        "grayscale": "grayscale(100%) opacity(50%)",
-                        "blur": "blur(6px)",
-                        "opacity": "opacity(40%)",
-                        "bloom": "bloom(150%, 1px, 0.2)"
+                    view.ui.add(new Expand({
+                        content: new BasemapGallery({ view: view }),
+                        view: view,
+                        expanded: false
+                    }), "bottom-left");
+                    allEffects = {
+                        "Mid-Century": "grayscale(50%)",
+                        "Grayscale": "grayscale(100%)",
+                        "Invert Colors": "invert(100%)",
+                        "Darken": "brightness(80%) grayscale(15%)",
+                        "Saturate": "contrast(155%)"
                     };
+                    polygonEffects = {
+                        "Focus (polygons)": "drop-shadow(0px, 0px, 9px, #000000)"
+                    };
+                    pointEffects = {
+                        "Cluster focus": "bloom(1, 1px, 0.3)"
+                    };
+                    lineEffects = {
+                        "Focus (lines)": "drop-shadow(1px, 1px, 3px, #000000)",
+                        "Firefly": "bloom(1, 0px, 0)"
+                    };
+                    effects = __assign(__assign(__assign(__assign({}, allEffects), polygonEffects), pointEffects), lineEffects);
+                    createActions = function (effects) { return Object.keys(effects).map(function (key) { return new ActionToggle({ id: key, title: key, value: false }); }); };
                     layerList = new LayerList({
                         view: view,
                         listItemCreatedFunction: function (event) {
@@ -94,8 +122,19 @@ define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets
                             var finalLayer = view.map.layers.getItemAt(view.map.layers.length - 1);
                             var showOptions = finalLayer.id === item.layer.id;
                             item.actionsOpen = showOptions;
+                            var layer = item.layer;
+                            var effects = {};
+                            if (layer.geometryType === "point" || layer.geometryType === "multipoint") {
+                                effects = __assign(__assign({}, allEffects), pointEffects);
+                            }
+                            if (layer.geometryType === "polyline") {
+                                effects = __assign(__assign({}, allEffects), lineEffects);
+                            }
+                            if (layer.geometryType === "polygon" || layer.geometryType === "multipatch") {
+                                effects = __assign(__assign({}, allEffects), polygonEffects);
+                            }
                             item.actionsSections = [
-                                Object.keys(effects).map(function (key) { return new ActionToggle({ id: key, title: key, value: false }); })
+                                createActions(effects)
                             ];
                         }
                     });
