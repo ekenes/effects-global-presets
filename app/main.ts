@@ -50,7 +50,9 @@ import { getUrlParams } from "./urlParams";
     "Invert Colors": `invert(100%)`,
     "Darken": `brightness(80%) grayscale(15%)`,
     "Saturate": `contrast(155%)`,
-    "Drop shadow": `drop-shadow(2px, 2px, 6px, rgb(50,50,50))`
+    "Vintage": `brightness(90%) grayscale(50%)`,
+    "Dramatic": `contrast(200%) grayscale(19%)`,
+    "Enhance": `brightness(80%) contrast(200%)`
   };
 
   const polygonEffects = {
@@ -58,6 +60,7 @@ import { getUrlParams } from "./urlParams";
   };
 
   const pointEffects = {
+    "Focus (points)": `drop-shadow(2px, 3px, 2px, #3D3D3D)`,
     "Cluster focus": `bloom(1, 1px, 0.3)`
   };
 
