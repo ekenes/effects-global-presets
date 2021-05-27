@@ -33,13 +33,15 @@ import { getUrlParams } from "./urlParams";
   view.ui.add(new Expand({
     content: new Legend({ view }),
     view,
-    expanded: false
+    expanded: false,
+    group: "bottom-left"
   }), "bottom-left");
 
   view.ui.add(new Expand({
     content: new BasemapGallery({ view }),
     view,
-    expanded: false
+    expanded: false,
+    group: "bottom-left"
   }), "bottom-left");
 
   const allEffects = {
@@ -47,7 +49,8 @@ import { getUrlParams } from "./urlParams";
     "Grayscale": `grayscale(100%)`,
     "Invert Colors": `invert(100%)`,
     "Darken": `brightness(80%) grayscale(15%)`,
-    "Saturate": `contrast(155%)`
+    "Saturate": `contrast(155%)`,
+    "Drop shadow": `drop-shadow(2px, 2px, 6px, rgb(50,50,50))`
   };
 
   const polygonEffects = {
@@ -112,7 +115,12 @@ import { getUrlParams } from "./urlParams";
       ] as any;
     }
   });
-  view.ui.add(layerList, "top-right");
+  view.ui.add(new Expand({
+    view,
+    content: layerList,
+    expanded: true,
+    group: "top-right"
+  }), "top-right");
 
   function triggerAction (event: esri.LayerListTriggerActionEvent) {
     const { action, item } = event;
@@ -142,7 +150,12 @@ import { getUrlParams } from "./urlParams";
     baseListItemCreatedFunction: basemapListItemCreatedFunction,
     referenceListItemCreatedFunction: basemapListItemCreatedFunction
   });
-  view.ui.add(basemapLayerList, "top-right");
+  view.ui.add(new Expand({
+    view,
+    content: basemapLayerList,
+    expanded: false,
+    group: "top-right"
+  }), "top-right");
   basemapLayerList.on("trigger-action", triggerAction);
 
 })();

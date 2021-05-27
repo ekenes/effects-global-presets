@@ -89,19 +89,22 @@ define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets
                     view.ui.add(new Expand({
                         content: new Legend({ view: view }),
                         view: view,
-                        expanded: false
+                        expanded: false,
+                        group: "bottom-left"
                     }), "bottom-left");
                     view.ui.add(new Expand({
                         content: new BasemapGallery({ view: view }),
                         view: view,
-                        expanded: false
+                        expanded: false,
+                        group: "bottom-left"
                     }), "bottom-left");
                     allEffects = {
                         "Mid-Century": "grayscale(50%)",
                         "Grayscale": "grayscale(100%)",
                         "Invert Colors": "invert(100%)",
                         "Darken": "brightness(80%) grayscale(15%)",
-                        "Saturate": "contrast(155%)"
+                        "Saturate": "contrast(155%)",
+                        "Drop shadow": "drop-shadow(2px, 2px, 6px, rgb(50,50,50))"
                     };
                     polygonEffects = {
                         "Focus (polygons)": "drop-shadow(0px, 0px, 9px, #000000)"
@@ -138,14 +141,24 @@ define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets
                             ];
                         }
                     });
-                    view.ui.add(layerList, "top-right");
+                    view.ui.add(new Expand({
+                        view: view,
+                        content: layerList,
+                        expanded: true,
+                        group: "top-right"
+                    }), "top-right");
                     layerList.on("trigger-action", triggerAction);
                     basemapLayerList = new BasemapLayerList({
                         view: view,
                         baseListItemCreatedFunction: basemapListItemCreatedFunction,
                         referenceListItemCreatedFunction: basemapListItemCreatedFunction
                     });
-                    view.ui.add(basemapLayerList, "top-right");
+                    view.ui.add(new Expand({
+                        view: view,
+                        content: basemapLayerList,
+                        expanded: false,
+                        group: "top-right"
+                    }), "top-right");
                     basemapLayerList.on("trigger-action", triggerAction);
                     return [2 /*return*/];
             }
