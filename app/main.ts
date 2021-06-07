@@ -47,7 +47,7 @@ import { getUrlParams } from "./urlParams";
   const allEffects = {
     "Mid-Century": `grayscale(50%)`,
     "Grayscale": `grayscale(100%)`,
-    "Invert Colors": `invert(100%)`,
+    "Invert Colors": `invert(100%) hue-rotate(180deg)`,
     "Darken": `brightness(80%) grayscale(15%)`,
     "Saturate": `contrast(155%)`,
     "Vintage": `brightness(90%) grayscale(50%)`,
