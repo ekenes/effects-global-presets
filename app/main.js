@@ -93,6 +93,15 @@ define(["require", "exports", "esri/WebMap", "esri/views/MapView", "esri/widgets
                         group: "bottom-left"
                     }), "bottom-left");
                     view.ui.add(new Expand({
+                        content: new Legend({
+                            view: view,
+                            style: "card"
+                        }),
+                        view: view,
+                        expanded: false,
+                        group: "bottom-left"
+                    }), "bottom-left");
+                    view.ui.add(new Expand({
                         content: new BasemapGallery({ view: view }),
                         view: view,
                         expanded: false,

@@ -38,6 +38,16 @@ import { getUrlParams } from "./urlParams";
   }), "bottom-left");
 
   view.ui.add(new Expand({
+    content: new Legend({
+      view,
+      style: "card"
+    }),
+    view,
+    expanded: false,
+    group: "bottom-left"
+  }), "bottom-left");
+
+  view.ui.add(new Expand({
     content: new BasemapGallery({ view }),
     view,
     expanded: false,
